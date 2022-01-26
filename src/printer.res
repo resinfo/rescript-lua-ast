@@ -1,7 +1,7 @@
 let reduce = Belt.List.reduce
 
 open Ast
-open Writer
+let {make, write, newline, outdentThenNewline, indentThenNewline} = module(Writer)
 
 let rec writeBlock = (w, t) => {
   switch t {
@@ -202,8 +202,8 @@ and writeStatement = (w, t) => {
 
 and writeDots = (w, t) => {
   switch t {
-  | Dots => "..."
-  }->Writer.write(w, _)
+  | Dots => w->write("...")
+  }
 }
 
 and writeTableElement = (w, t) => {
@@ -215,11 +215,11 @@ and writeTableElement = (w, t) => {
 
 and writeExpr = (w, t) => {
   switch t {
-  | Nil => w->Writer.write("nil")
+  | Nil => w->write("nil")
   | ExprDots(t) => writeDots(w, t)
-  | True => w->Writer.write("true")
-  | False => w->Writer.write("false")
-  | Number(float) => w->Writer.write(Js.Float.toString(float))
+  | True => w->write("true")
+  | False => w->write("false")
+  | Number(float) => w->write(Js.Float.toString(float))
   | String(t) => w->write(`"`)->write(t)->write(`"`)
   | Function(idents, dots, block) => {
       let w = w->write("function(")
@@ -294,8 +294,8 @@ and writeApply = (w, t) => {
 
 and writeIdent = (w, t) => {
   switch t {
-  | Id(x) => x
-  }->Writer.write(w, _)
+  | Id(t) => w->write(t)
+  }
 }
 
 and writeLhs = (w, t) => {
@@ -320,13 +320,13 @@ and writeBinaryOpId = (w, t) => {
   | Le => "<="
   | And => "and"
   | Or => "or"
-  }->Writer.write(w, _)
+  }->write(w, _)
 }
 and writeUnaryOpId = (w, t) => {
   switch t {
   | Not => "not"
   | Len => "#"
-  }->Writer.write(w, _)
+  }->write(w, _)
 }
 
 let print = ast => {
@@ -340,5 +340,5 @@ let print = ast => {
     }
   }
 
-  statements->map(x => Block(list{x}))->map(writeBlock(make()))->map(toString)->write_
+  statements->map(x => Block(list{x}))->map(writeBlock(Writer.make()))->map(Writer.toString)->write_
 }

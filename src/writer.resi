@@ -1,6 +1,6 @@
 type t
 
-let make: unit => t
+let make: (~newline: string=?, ~tabChars: string=?, unit) => t
 let flatMap: (t, t => t) => t
 let map: (t, string => string) => t
 let indent: t => t
