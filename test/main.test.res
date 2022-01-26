@@ -223,15 +223,91 @@ runStatementsTests(
     (Do(list{}), "do end"),
     (Do(list{Set((LhsIdent(Id("foo")), list{}), (Number(1.), list{}))}), "do foo = 1 end"),
     (Set((LhsIdent(Id("foo")), list{}), (Number(1.), list{})), "foo = 1"),
+    (
+      Set((LhsIdent(Id("a")), list{LhsIdent(Id("b"))}), (Number(1.), list{String("hello")})),
+      `a, b = 1, "hello"`,
+    ),
     (While(BinaryOp(Lt, Number(1.), Number(2.)), Block(list{})), "while 1 < 2 do end"),
     (
       Repeat(Block(list{Do(list{})}), BinaryOp(Le, ExprLhs(LhsIdent(Id("a"))), Number(1.))),
       "repeat do end until (a <= 1)",
     ),
     (
-      Set((LhsIdent(Id("a")), list{LhsIdent(Id("b"))}), (Number(1.), list{String("hello")})),
-      `a, b = 1, "hello"`,
+      If(
+        (
+          (
+            BinaryOp(Eq, ExprLhs(LhsIdent(Id("x"))), Number(1.)),
+            Block(list{Set((LhsIdent(Id("x")), list{}), (Number(2.), list{}))}),
+          ),
+          list{},
+        ),
+        None,
+      ),
+      "if x == 1 then x = 2 end",
     ),
+    (
+      If(
+        (
+          (
+            BinaryOp(Eq, ExprLhs(LhsIdent(Id("x"))), Number(1.)),
+            Block(list{Set((LhsIdent(Id("x")), list{}), (Number(2.), list{}))}),
+          ),
+          list{
+            (
+              BinaryOp(Eq, ExprLhs(LhsIdent(Id("x"))), Number(2.)),
+              Block(list{Set((LhsIdent(Id("x")), list{}), (Number(3.), list{}))}),
+            ),
+          },
+        ),
+        Some(Block(list{Set((LhsIdent(Id("x")), list{}), (Number(3.), list{}))})),
+      ),
+      "if x == 1 then x = 2 elseif x == 2 then x = 3 else x = 3 end",
+    ),
+    // Fornum,
+    // Forin,
+    // Local,
+    (Local((Id("hello"), list{}), None), "local hello"),
+    (Local((Id("hello"), list{Id("world")}), None), "local hello, world"),
+    (
+      Local(
+        (Id("hello"), list{Id("world")}),
+        Some((ExprLhs(LhsIdent(Id("world"))), list{Number(1.)})),
+      ),
+      "local hello, world = world, 1",
+    ),
+    (
+      Local((Id("hello"), list{Id("world")}), Some((Nil, list{Table(list{})}))),
+      "local hello, world = nil, {}",
+    ),
+    (
+      Local(
+        (Id("foo"), list{}),
+        Some((
+          Table(list{
+            //
+            TableExp(Number(1.)),
+            Pair(ExprLhs(LhsIdent(Id("a"))), String("b")),
+          }),
+          list{},
+        )),
+      ),
+      "local foo = { 1, a = \"b\" }",
+    ),
+    // Localrec,
+    // Goto,
+    // Label
     (Return(list{}), "return"),
+    (
+      Return(list{
+        Table(list{
+          //
+          Pair(ExprLhs(LhsIdent(Id("module"))), String("property")),
+          Pair(ExprLhs(LhsIdent(Id("another"))), ExprLhs(LhsIdent(Id("one")))),
+        }),
+      }),
+      "return { module = \"property\", another = one }",
+    ),
+    // Break
+    // StatementApply
   ],
 )
