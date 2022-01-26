@@ -14,7 +14,7 @@ let ast = Block(list{
     ),
   ),
   Set(
-    (Index(ExprLhs(LhsIdent(Id("love"))), ExprLhs(LhsIdent(Id("love")))), list{}),
+    (Index(ExprLhs(LhsIdent(Id("love"))), ExprLhs(LhsIdent(Id("load")))), list{}),
     (
       Function(
         list{},
@@ -128,7 +128,7 @@ let ast = Block(list{
     True,
     Block(list{
       StatementApply(Call(ExprLhs(LhsIdent(Id("print"))), list{String("hello")})),
-      StatementApply(Call(ExprLhs(LhsIdent(Id("print"))), list{String("yes")})),
+      StatementApply(Call(ExprLhs(LhsIdent(Id("print"))), list{String("world")})),
       StatementApply(Call(ExprLhs(LhsIdent(Id("print"))), list{String("!")})),
     }),
   ),
@@ -194,4 +194,44 @@ let ast = Block(list{
   ),
 })
 
-Node.Fs.writeFileAsUtf8Sync("expected1.lua", Printer.print(ast))
+open Ava
+
+test("Test", t => {
+  let expected = Node.Fs.readFileAsUtf8Sync("expected.lua")
+  let parse = Lua_parse.parse(_, ())
+  let a = parse(Printer.print(ast))
+  let b = parse(expected)
+
+  t->deepEqual(a, b, ~message="Outputs should be identical", ())
+})
+
+let runStatementsTests = (~label, ~tests) => {
+  tests->Belt.Array.forEach(((ast, expected)) => {
+    test("[AST] " ++ label ++ " | " ++ expected, t => {
+      let parse = Lua_parse.parse(_, ())
+      let a = Writer.make()->Printer.writeStatement(ast)->Writer.toString->parse
+      let b = parse(expected)
+
+      t->deepEqual(a, b, ~message="Outputs should be identical", ())
+    })
+  })
+}
+
+runStatementsTests(
+  ~label="Statements",
+  ~tests=[
+    (Do(list{}), "do end"),
+    (Do(list{Set((LhsIdent(Id("foo")), list{}), (Number(1.), list{}))}), "do foo = 1 end"),
+    (Set((LhsIdent(Id("foo")), list{}), (Number(1.), list{})), "foo = 1"),
+    (While(BinaryOp(Lt, Number(1.), Number(2.)), Block(list{})), "while 1 < 2 do end"),
+    (
+      Repeat(Block(list{Do(list{})}), BinaryOp(Le, ExprLhs(LhsIdent(Id("a"))), Number(1.))),
+      "repeat do end until (a <= 1)",
+    ),
+    (
+      Set((LhsIdent(Id("a")), list{LhsIdent(Id("b"))}), (Number(1.), list{String("hello")})),
+      `a, b = 1, "hello"`,
+    ),
+    (Return(list{}), "return"),
+  ],
+)
