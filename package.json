@@ -1,0 +1,8 @@
+{
+  "name": "rescript-lua-ast",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:resinfo/rescript-lua-ast.git",
+  "author": "Oliver Fencott <oliverfencott@gmail.com>",
+  "license": "MIT"
+}
