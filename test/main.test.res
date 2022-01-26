@@ -1,7 +1,6 @@
 open Ast
 
 let ast = Block(list{
-  //
   Local((Id("hello"), list{}), Some(String("world"), list{})),
   Local(
     (Id("var"), list{}),
@@ -15,7 +14,6 @@ let ast = Block(list{
     ),
   ),
   Set(
-    //
     (Index(ExprLhs(LhsIdent(Id("love"))), ExprLhs(LhsIdent(Id("love")))), list{}),
     (
       Function(
@@ -38,9 +36,7 @@ let ast = Block(list{
     list{Id("a")},
     None,
     Block(list{
-      //
       Return(list{
-        //
         UnaryOp(
           Not,
           BinaryOp(
@@ -56,13 +52,11 @@ let ast = Block(list{
   Set(
     (Index(ExprLhs(LhsIdent(Id("love"))), ExprLhs(LhsIdent(Id("update")))), list{}),
     (
-      //
       Function(
         list{Id("dt")},
         Some(Dots),
         Block(list{
           Set(
-            //
             (LhsIdent(Id("var")), list{}),
             (
               BinaryOp(
@@ -84,7 +78,6 @@ let ast = Block(list{
     Some((
       ExprApply(
         Call(
-          //
           ExprLhs(LhsIdent(Id("x"))),
           list{
             Function(
@@ -119,7 +112,6 @@ let ast = Block(list{
     )),
   ),
   Set(
-    //
     (LhsIdent(Id("a")), list{}),
     (
       Function(
@@ -141,7 +133,6 @@ let ast = Block(list{
     }),
   ),
   Fornum(
-    //
     Id("i"),
     Number(1.0),
     Number(10.),
@@ -157,10 +148,8 @@ let ast = Block(list{
     }),
   ),
   Forin(
-    //
     (Id("i"), list{Id("v")}),
     (
-      //
       ExprApply(
         Call(
           ExprLhs(LhsIdent(Id("ipairs"))),
